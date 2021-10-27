@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Text, Button } from "react-native";
+import { Button } from "react-native";
 import Animated, {
   withTiming,
   useSharedValue,
@@ -7,9 +7,11 @@ import Animated, {
   withSequence,
 } from "react-native-reanimated";
 
-export default function TextOpacityWithTiming() {
+export default function ViewOpacityWithTiming() {
+  // value kept in the ui thread, used to hold data to animate/ change over time
   const animatedOpacity = useSharedValue(0);
 
+  // declarative 'worklet' function that is trigerred whenever any of the sharedValue changes
   const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: animatedOpacity.value,
@@ -18,6 +20,7 @@ export default function TextOpacityWithTiming() {
   });
 
   useEffect(() => {
+    // async call from js thread to ui thread running the separate js vm (feature by reanimated)
     animatedOpacity.value = withTiming(1);
   }, []);
 
@@ -32,7 +35,14 @@ export default function TextOpacityWithTiming() {
     >
       <Animated.View
         style={[
-          { height: 100, backgroundColor: "#eaf6f6", padding: 20, marginBottom: 20, borderRadius: 20, elevation: 20 },
+          {
+            height: 100,
+            backgroundColor: "#eaf6f6",
+            padding: 20,
+            marginBottom: 20,
+            borderRadius: 20,
+            elevation: 20,
+          },
           animatedStyle,
         ]}
       >
@@ -45,6 +55,7 @@ export default function TextOpacityWithTiming() {
       <Button
         title="animate"
         onPress={() => {
+          // async call from js thread to ui thread to update shared variable value, and the two events are triggered serially
           animatedOpacity.value = withSequence(withTiming(0), withTiming(1));
         }}
       />
