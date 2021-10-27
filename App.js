@@ -11,8 +11,8 @@ export default function App() {
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         {/* <OpacityScaleFL /> */}
-        {/* <CarouselFL /> */}
-        <TextOpacityWithTiming />
+        <CarouselFL />
+        {/* <TextOpacityWithTiming /> */}
       </View>        
     </SafeAreaView>
   );
