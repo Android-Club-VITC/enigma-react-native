@@ -3,6 +3,7 @@ import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import OpacityScaleFL from './components/FlatList/OpacityScaleFL';
 import CarouselFL from './components/FlatList/CarouselFL';
+import InstaStories from './components/InstaStories';
 
 import ViewOpacityWithTiming from './playground/reanimated2/ViewOpacityWithTiming';
 
@@ -12,7 +13,9 @@ export default function App() {
       <View style={styles.container}>
         {/* <OpacityScaleFL /> */}
         {/* <CarouselFL /> */}
-        <ViewOpacityWithTiming />
+        <InstaStories />
+    
+        {/* <ViewOpacityWithTiming /> */}
       </View>        
     </SafeAreaView>
   );
