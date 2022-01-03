@@ -5,7 +5,7 @@ import {
   Modal,
   Pressable,
   Button,
-  Dimensions,
+  Dimensions
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import Animated, {
@@ -28,9 +28,9 @@ const demoData = Array(3)
       stories: Array(i + 1)
         .fill(0)
         .map((__, j) => {
-          return `https://picsum.photos/seed/${
-            i * 2 + j * 3
-          }/${width}/${height}`;
+          return `https://picsum.photos/seed/${i * 2 + j * 3}/${parseInt(
+            width
+          )}/${parseInt(height)}`;
         }),
     };
   });
@@ -46,7 +46,7 @@ function StoryButton({ handlePress, profile }) {
           marginLeft: 10,
           borderColor: "#fff",
           borderWidth: 2,
-          elevation: 20
+          elevation: 20,
         }}
       >
         <Image
@@ -64,7 +64,6 @@ function StoryModal({ showModal, handleClose, offset, data }) {
   const [stories, setStories] = useState([]);
   const animatedProgress = useSharedValue(0);
   const animatedTranslateX = useSharedValue(0);
-  const numStories = stories.length;
 
   useEffect(() => {
     setStories(data[storyOffset].stories);
@@ -79,7 +78,7 @@ function StoryModal({ showModal, handleClose, offset, data }) {
     if (isVisible) {
       animatedProgress.value = 0;
       animatedProgress.value = withTiming(width, {
-        duration: numStories * 3000,
+        duration: stories.length * 3000,
       });
     }
   }, [isVisible, stories]);
@@ -108,12 +107,44 @@ function StoryModal({ showModal, handleClose, offset, data }) {
     }
   }
 
+  function prevStoryHandler() {
+    if (storyOffset == 0) {
+      handleClose();
+    } else {
+      setStoryOffset((x) => x - 1);
+    }
+  }
+
   const storyHandler = (progressValue) => {
     if (progressValue >= width) {
       nextStoryHandler();
     } else {
       animatedTranslateX.value =
-        parseInt(progressValue / (width / numStories)) * width;
+        parseInt(progressValue / (width / stories.length)) * width;
+    }
+  };
+
+  const switchNextStoryOnPress = () => {
+    const idx = parseInt(animatedProgress.value / (width / stories.length));
+    if (idx < stories.length) {
+      animatedProgress.value = (idx + 1) * (width / stories.length);
+      animatedProgress.value = withTiming(width, {
+        duration: stories.length * 3000,
+      });
+    } else {
+      nextStoryHandler();
+    }
+  };
+
+  const switchPrevStoryOnPress = () => {
+    const idx = parseInt(animatedProgress.value / (width / stories.length));
+    if (idx != 0) {
+      animatedProgress.value = (idx - 1) * (width / stories.length);
+      animatedProgress.value = withTiming(width, {
+        duration: stories.length * 3000,
+      });
+    } else {
+      prevStoryHandler();
     }
   };
 
@@ -174,8 +205,7 @@ function StoryModal({ showModal, handleClose, offset, data }) {
                   width,
                   height: "100%",
                   flexDirection: "row",
-                  top: 0,
-                  left: 0,
+                  position: "relative",
                 }}
                 key={i}
               >
@@ -184,39 +214,48 @@ function StoryModal({ showModal, handleClose, offset, data }) {
                   source={{ uri: x }}
                   style={{ height: "100%", width }}
                 />
-                <View
-                  style={{
-                    position: "absolute",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    width,
-                    height: "100%",
-                    zIndex: 99,
-                  }}
-                >
-                  <Pressable onPress={nextStoryHandler}>
-                    <View
-                      key={`press-left-${i}`}
-                      style={{ width: "25%" }}
-                    ></View>
-                  </Pressable>
-
-                  <Pressable onPress={nextStoryHandler}>
-                    <View
-                      key={`press-right-${i}`}
-                      style={{
-                        width: "25%",
-                        backgroundColor: "red",
-                        height: "100%",
-                        zIndex: 99,
-                      }}
-                    ></View>
-                  </Pressable>
-                </View>
               </View>
             );
           })}
         </Animated.View>
+        <View
+          style={{
+            position: "absolute",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width,
+            height: "100%",
+            zIndex: 100,
+            top: 0,
+            left: 0,
+          }}
+        >
+          <Pressable
+            onPress={() => switchPrevStoryOnPress()}
+            style={{ width: "25%", height: "100%" }}
+          >
+            <View
+              key={`press-left`}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            ></View>
+          </Pressable>
+
+          <Pressable
+            onPress={() => switchNextStoryOnPress()}
+            style={{ width: "25%", height: "100%" }}
+          >
+            <View
+              key={`press-right`}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            ></View>
+          </Pressable>
+        </View>
       </View>
     </Modal>
   );
@@ -242,7 +281,9 @@ export default function InstaStories() {
   }, [storyOffset]);
 
   return (
-    <View style={{ backgroundColor: "#fff", flex: 1, justifyContent: "center" }}>
+    <View
+      style={{ backgroundColor: "#fff", flex: 1, justifyContent: "center" }}
+    >
       <StatusBar hidden />
       <View
         style={{
@@ -252,7 +293,7 @@ export default function InstaStories() {
           borderColor: "#000",
           borderWidth: 2,
           justifyContent: "center",
-          backgroundColor: "#233142"
+          backgroundColor: "#233142",
         }}
       >
         {demoData.map((x, i) => {
@@ -272,7 +313,7 @@ export default function InstaStories() {
           data={demoData}
           offset={storyOffset.idx}
           showModal={() => showModal()}
-          handleClose={() => setStoryOffset({idx: -1})}
+          handleClose={() => setStoryOffset({ idx: -1 })}
         />
       ) : null}
     </View>
